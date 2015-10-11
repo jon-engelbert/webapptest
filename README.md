@@ -45,30 +45,30 @@ The instructions are:
 
 ###User stories
 * As a phonebook admin
-* I'd like to add a new person to the phonebook
-* In order to build a comprehensive phonebook
+, I'd like to add a new person to the phonebook
+, In order to build a comprehensive phonebook
 
 * Given an existing phonebook and a new person
-* When the user adds a new person
-* Then the phonebook is modified to contain the new user
+, When the user adds a new person
+, Then the phonebook is modified to contain the new user
 
 * Given the phonebook  
-* When the program is beginning
-* Then the local phonebook List is synchronized from the database
+, When the program is beginning
+, Then the local phonebook List is synchronized from the database
 
 * As a user
-* I'd like to see a person's address/phone
-* In order to contact that person.
+, I'd like to see a person's address/phone
+, In order to contact that person.
 
 * Given the phonebook  and the person's name
-* When the user requests contact info for a person
-* Then the person's contact information is displayed
+, When the user requests contact info for a person
+, Then the person's contact information is displayed
 
 * As a user
-* I'd like to a listing of the address/phone of the entire phonebook
-* In order to print out a directory.
+, I'd like to a listing of the address/phone of the entire phonebook
+, In order to print out a directory.
 
 * Given the phonebook 
-* When the user requests a print-out
-* Then a phonebook listing is generated of all users.
+, When the user requests a print-out
+, Then a phonebook listing is generated of all users.
 
