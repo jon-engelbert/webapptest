@@ -1,6 +1,7 @@
 package com.proquest.interview.phonebook;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,16 +10,12 @@ import java.util.List;
 
 import com.proquest.interview.util.DatabaseUtil;
 
-/**
- * @author jonengelbert
- *
- */
 public class PhoneBookImpl implements PhoneBook {
 	public List<Person> people = new ArrayList<Person>();
 	
 
 	/**
-	 * initialize phonebook list from database records?
+	 * synchronize phonebook list from database records
 	 */
 	private void InitializeList() {
 		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
@@ -37,51 +34,66 @@ public class PhoneBookImpl implements PhoneBook {
 		}
 	}
 	
+
+	@Override
+	public void addPerson(Person newPerson) {
+		if (addPersonToDb(newPerson))
+			addPersonToCollection(newPerson);
+		
+	}
+	@Override
 	public void addPersonToCollection(Person newPerson) {
 		if (!people.contains(newPerson))
 			people.add(newPerson);
 	}
 	
 	@Override
-	public void addPersonToDb(Person newPerson) {
-		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
-			String queryString = "INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES('"
-					+ newPerson.name
-					+ "', '"
-					+ newPerson.phoneNumber
-					+ "', '"
-					+ newPerson.address + "')";
-			stmt.execute(queryString);
+	public boolean addPersonToDb(Person newPerson) {
+		try (Connection cn = DatabaseUtil.getConnection()) {
+			String queryString = "INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES(?, ?, ?)";
+			PreparedStatement stmt = cn.prepareStatement(queryString);
+			stmt.setString(1,  newPerson.getName());
+			stmt.setString(2,  newPerson.getPhoneNumber());
+			stmt.setString(3,  newPerson.getAddress());
+			stmt.executeUpdate();
 			cn.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("addPerson to database failed");
 			e.printStackTrace();
+			return false;
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
+			System.out.println("addPerson to database failed");
 			e1.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 	
 	/**
 	 * find person using name (firstname + lastName) using Phonebook database
-	 * Why not use phonebook list?
+	 * perhaps use phonebook list?  
 	 */
 	@Override
 	public Person findPerson(String firstName, String lastName)  {
 		Person newPerson = new Person();
-		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
-			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK WHERE NAME = '" + firstName + " " + lastName + "'";
-			ResultSet rs = stmt.executeQuery(queryString);
+		try (Connection cn = DatabaseUtil.getConnection()) {
+			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK WHERE NAME = ?";
+			PreparedStatement stmt = cn.prepareStatement(queryString);
+			stmt.setString(1, firstName + " " + lastName);
+			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
-			    newPerson.name = rs.getString("NAME");
-			    newPerson.phoneNumber = rs.getString("PHONENUMBER");
-			    newPerson.address = rs.getString("ADDRESS");
-			}
+			    newPerson.setName(rs.getString("NAME"));
+			    newPerson.setPhoneNumber(rs.getString("PHONENUMBER"));
+			    newPerson.setAddress(rs.getString("ADDRESS"));
+			} else
+				newPerson = null;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
+			System.out.println("findPerson failed");
 			e.printStackTrace();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			System.out.println("findPerson failed");
 			e.printStackTrace();
 		}
 		return newPerson;
@@ -92,8 +104,7 @@ public class PhoneBookImpl implements PhoneBook {
 	 * generate Phonebook output string from database
 	 * Why not use list?
 	 */
-	@Override
-	public String toString() {
+	public String toStringFromDb() {
 		String str = "";
 		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
 			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK";
@@ -118,11 +129,15 @@ public class PhoneBookImpl implements PhoneBook {
 	}
 	
 
-	public void PrintPeopleFromList() {
-		System.out.println("People from list:");
+	@Override
+	public String toString() {
+		String str = "";
 		for (Person p : people) {
-			System.out.println(p.toString());
+		    if (!str.isEmpty())
+		    	str += "\n";
+			str += (p.toString());
 		}
+		return str;
 	}
 	
 	public static void main(String[] args) {
@@ -132,7 +147,8 @@ public class PhoneBookImpl implements PhoneBook {
 		/* Initialize list of people from database 
 		*/
 		phoneBook.InitializeList();
-		phoneBook.PrintPeopleFromList();
+		System.out.println("Initial phone book (from List)");
+		System.out.println(phoneBook.toString());
 		/* TODO: create person objects and put them in the PhoneBook and database
 		 * John Smith, (248) 123-4567, 1234 Sand Hill Dr, Royal Oak, MI
 		 * Cynthia Smith, (824) 128-8758, 875 Main St, Ann Arbor, MI
@@ -144,20 +160,18 @@ public class PhoneBookImpl implements PhoneBook {
 		phoneBook.addPersonToCollection(p);
 		phoneBook.addPersonToDb(p);
 		// TODO: print the phone book out to System.out
-		System.out.println("Phone book after adding John & Cynthia Smith");
-		System.out.println(phoneBook.toString());
+		System.out.println("\nPhone book (from database) after adding John & Cynthia Smith");
+		System.out.println(phoneBook.toStringFromDb());
 
 		// TODO: find Cynthia Smith and print out just her entry
 		Person foundPerson = phoneBook.findPerson("Cynthia", "Smith");
-		System.out.println("");
-		System.out.println("Cynthia Smith query result:");
+		System.out.println("\nCynthia Smith query result:");
 		System.out.println(foundPerson.toString());
 		
 		// TODO: insert the new person objects into the database
 		p = new Person("John Harbaugh", "(800) MGO-BLUE", "1 N. Main St, Ann Arbor, MI");
 		phoneBook.addPersonToDb(p);
-		System.out.println("");
-		System.out.println("Phone book after adding John Harbaugh: ");
+		System.out.println("\nPhone book after adding John Harbaugh: ");
 		System.out.println(phoneBook.toString());
 	}
 }
