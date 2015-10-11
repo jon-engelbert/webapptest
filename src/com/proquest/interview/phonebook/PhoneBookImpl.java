@@ -5,23 +5,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.proquest.interview.util.DatabaseUtil;
 import com.proquest.interview.exceptions.AddPersonException;
 
 public class PhoneBookImpl implements PhoneBook {
-	private List<Person> people = new ArrayList<Person>();
+	private Map<String, Person> people = new HashMap<String, Person>();
 	
-
-
-	public List<Person> getPeople() {
+	@Override
+	public Map<String, Person> getPeople() {
 		return people;
 	}
 
 
-	public void setPeople(List<Person> people) {
+	public void setPeople(HashMap<String, Person> people) {
 		this.people = people;
 	}
 	
@@ -59,8 +58,8 @@ public class PhoneBookImpl implements PhoneBook {
 	}
 	@Override
 	public void addPersonToCollection(Person newPerson) {
-		if (!people.contains(newPerson))
-			people.add(newPerson);
+		if (!people.containsKey(newPerson.getName()))
+			people.put(newPerson.getName(), newPerson);
 	}
 	
 	@Override
@@ -87,7 +86,7 @@ public class PhoneBookImpl implements PhoneBook {
 	 * perhaps use phonebook list?  
 	 */
 	@Override
-	public Person findPerson(String firstName, String lastName)  {
+	public Person findPersonFromDb(String firstName, String lastName)  {
 		Person newPerson = new Person();
 		try (Connection cn = DatabaseUtil.getConnection()) {
 			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK WHERE NAME = ?";
@@ -111,12 +110,20 @@ public class PhoneBookImpl implements PhoneBook {
 		}
 		return newPerson;
 	}
+	
+	@Override
+	public Person findPerson(String firstName, String lastName) {
+		Person newPerson = null;
+		newPerson = people.get(firstName + " " + lastName);
+		return newPerson;
+	}
 
 	
 	/**
 	 * generate Phonebook output string from database
 	 * Why not use list?
 	 */
+	@Override
 	public String toStringFromDb() {
 		String str = "";
 		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
@@ -145,7 +152,7 @@ public class PhoneBookImpl implements PhoneBook {
 	@Override
 	public String toString() {
 		String str = "";
-		for (Person p : people) {
+		for (Person p : people.values()) {
 		    if (!str.isEmpty())
 		    	str += "\n";
 			str += (p.toString());

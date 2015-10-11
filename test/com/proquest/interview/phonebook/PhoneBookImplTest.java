@@ -2,14 +2,15 @@ package com.proquest.interview.phonebook;
 
 import static org.junit.Assert.*;
 
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.proquest.interview.util.DatabaseUtil;
 
 public class PhoneBookImplTest {
-	PhoneBookImpl phoneBook = null;
+	PhoneBook phoneBook = null;
     @Before
     public  void initialize() {
 		DatabaseUtil.initDB(); 
@@ -25,6 +26,14 @@ public class PhoneBookImplTest {
 	}
     
     @Test
+	public void shouldAddFindPersonFromDb() {
+		Person p = new Person("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI");
+		phoneBook.addPerson(p);
+		Person pFound = phoneBook.findPersonFromDb("John", "Smith");
+		assertEquals(p, pFound);
+	}
+    
+    @Test
 	public void shouldFindInitialPeople() {
 		Person pFound = phoneBook.findPerson("Chris", "Johnson");
 		assertNotNull(pFound);
@@ -33,12 +42,11 @@ public class PhoneBookImplTest {
     
     @Test
 	public void ExpectToStringToGenerateListingOfPhonebook() {
-		assertEquals("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI\n"
-				+ "name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI",
-				phoneBook.toStringFromDb());
-		assertEquals("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI\n"
-				+ "name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI", phoneBook.toString());
-	}
+		Assert.assertThat(phoneBook.toStringFromDb(), CoreMatchers.containsString("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI"));
+		Assert.assertThat(phoneBook.toStringFromDb(), CoreMatchers.containsString("name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI"));
+		Assert.assertThat(phoneBook.toString(), CoreMatchers.containsString("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI"));
+		Assert.assertThat(phoneBook.toString(), CoreMatchers.containsString("name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI"));
+}
     
 //    Just for fun... test prepared statements to see how they work with sql injection attempt
 	@Test
