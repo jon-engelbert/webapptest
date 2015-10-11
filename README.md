@@ -17,58 +17,58 @@ Rob Conklin
 #Jon Engelbert's additions
 ##Questions:
 Ideally, I'd run these by the product owner (Rob Conklin) before starting.
--What is the purpose of this product?  
--How big might this phonebook get?
--Is the product going to be used by multiple clients ?
--How much load do you expect, i.e. how many clients at a time?
+* What is the purpose of this product?  
+* How big might this phonebook get?
+* Is the product going to be used by multiple clients ?
+* How much load do you expect, i.e. how many clients at a time?
 
 ##Assumptions 
-- Eventually, the phonebook will be stored in a database on one or more servers... and there will be infrastructure to keep the database consistent so that the phonebook application can act as if the database is a single consistent entity.
-- Eventually, multiple instances of this phonebook executable will run at the same time on one or more servers.
-- The variable "people" in the PhoneBook class should always have the same content as the database table named PhoneBook.
-- For quick response to common queries, especially when the very latest data is not critical, a heap copy of the phonebook (e.g., a List) could be used.  .... this heap copy of the phonebook, or cache, will occassionally need to be updated from the database.  That could perhaps be done through messaging (e.g. RabbitMQ) or by reloading the phonebook from the database at regular intervals.  
-- However, we must be aware that different instances of this phonebook executable will have different heaps, and adding a member to one instance's heap copy of the phonebook won't update the local phonebook in the heap of other running instances.
+* Eventually, the phonebook will be stored in a database on one or more servers... and there will be infrastructure to keep the database consistent so that the phonebook application can act as if the database is a single consistent entity.
+* Eventually, multiple instances of this phonebook executable will run at the same time on one or more servers.
+* The variable "people" in the PhoneBook class should always have the same content as the database table named PhoneBook.
+* For quick response to common queries, especially when the very latest data is not critical, a heap copy of the phonebook (e.g., a List) could be used.  .... this heap copy of the phonebook, or cache, will occassionally need to be updated from the database.  That could perhaps be done through messaging (e.g. RabbitMQ) or by reloading the phonebook from the database at regular intervals.  
+* However, we must be aware that different instances of this phonebook executable will have different heaps, and adding a member to one instance's heap copy of the phonebook won't update the local phonebook in the heap of other running instances.
 
 ###The instructions are presently vague and confusing.
 The instructions are: 
-1- "create person objects and put them in the PhoneBook and database..."
-2- "print the phone book out to System.out"
-3- "find Cynthia Smith and print out just her entry"
-4- "insert the new person objects into the database"
+* "create person objects and put them in the PhoneBook and database..."
+* "print the phone book out to System.out"
+* "find Cynthia Smith and print out just her entry"
+* "insert the new person objects into the database"
 
 ###Modified instructions:
-1- synchronize the local phonebook with the database copy
-2- "create new person objects and put them in the PhoneBook List and PhoneBook database table..."
-3- "print the phone book out to System.out"
-4- "find Cynthia Smith and print out just her entry"
-5- "insert another new person object into the database" 
+* synchronize the local phonebook with the database copy
+* "create new person objects and put them in the PhoneBook List and PhoneBook database table..."
+* "print the phone book out to System.out"
+* "find Cynthia Smith and print out just her entry"
+* "insert another new person object into the database" 
 
 ###User stories
--As a phonebook admin
--I'd like to add a new person to the phonebook
--In order to build a comprehensive phonebook
+* As a phonebook admin
+* I'd like to add a new person to the phonebook
+* In order to build a comprehensive phonebook
 
-- Given an existing phonebook and a new person
-- When the user adds a new person
-- Then the phonebook is modified to contain the new user
+* Given an existing phonebook and a new person
+* When the user adds a new person
+* Then the phonebook is modified to contain the new user
 
-- Given the phonebook  
-- When the program is beginning
-- Then the local phonebook List is synchronized from the database
+* Given the phonebook  
+* When the program is beginning
+* Then the local phonebook List is synchronized from the database
 
--As a user
--I'd like to see a person's address/phone
--In order to contact that person.
+* As a user
+* I'd like to see a person's address/phone
+* In order to contact that person.
 
-- Given the phonebook  and the person's name
-- When the user requests contact info for a person
-- Then the person's contact information is displayed
+* Given the phonebook  and the person's name
+* When the user requests contact info for a person
+* Then the person's contact information is displayed
 
--As a user
--I'd like to a listing of the address/phone of the entire phonebook
--In order to print out a directory.
+* As a user
+* I'd like to a listing of the address/phone of the entire phonebook
+* In order to print out a directory.
 
-- Given the phonebook 
-- When the user requests a print-out
-- Then a phonebook listing is generated of all users.
+* Given the phonebook 
+* When the user requests a print-out
+* Then a phonebook listing is generated of all users.
 
