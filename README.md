@@ -1,6 +1,6 @@
 #webapptest
-==========
-Test for interviews
+-----------
+###Test for interviews
 
 This test is designed to give an overview of your capabilities as a java developer.  The ultimate goal of the test is spelled out in the main method of src/com/proquest/interview/phonebook/PhoneBookImpl.
 
@@ -10,27 +10,27 @@ You can download this project, make your changes, zip/tar it up and send it alon
 
 This test should take less than an hour.  You WILL be given another (quite different) test if you interview here, so please don't bother cheating.
 
-
 Thank you,
-Rob Conklin 
-==========
-#Jon Engelbert's additions
-##Questions:
+Rob Conklin
+
+-------------
+
+##Jon Engelbert's additions
+###Questions:
 Ideally, I'd run these by the product owner (Rob Conklin) before starting.
 * What is the purpose of this product?  
 * How big might this phonebook get?
 * Is the product going to be used by multiple clients ?
 * How much load do you expect, i.e. how many clients at a time?
 
-##Assumptions 
+###Assumptions 
 * Eventually, the phonebook will be stored in a database on one or more servers... and there will be infrastructure to keep the database consistent so that the phonebook application can act as if the database is a single consistent entity.
 * Eventually, multiple instances of this phonebook executable will run at the same time on one or more servers.
 * The variable "people" in the PhoneBook class should always have the same content as the database table named PhoneBook.
 * For quick response to common queries, especially when the very latest data is not critical, a heap copy of the phonebook (e.g., a List) could be used.  .... this heap copy of the phonebook, or cache, will occassionally need to be updated from the database.  That could perhaps be done through messaging (e.g. RabbitMQ) or by reloading the phonebook from the database at regular intervals.  
 * However, we must be aware that different instances of this phonebook executable will have different heaps, and adding a member to one instance's heap copy of the phonebook won't update the local phonebook in the heap of other running instances.
 
-###The instructions are presently vague and confusing.
-The instructions are: 
+###The original instructions:
 * "create person objects and put them in the PhoneBook and database..."
 * "print the phone book out to System.out"
 * "find Cynthia Smith and print out just her entry"
