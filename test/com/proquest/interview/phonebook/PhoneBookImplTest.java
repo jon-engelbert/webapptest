@@ -2,30 +2,49 @@ package com.proquest.interview.phonebook;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.proquest.interview.util.DatabaseUtil;
 
 public class PhoneBookImplTest {
-    @BeforeClass
-    public static void initialize() {
-		DatabaseUtil.initDB();  
+	PhoneBookImpl phoneBook = null;
+    @Before
+    public  void initialize() {
+		DatabaseUtil.initDB(); 
+		phoneBook = new PhoneBookImpl();
+		phoneBook.InitializeList();
 	}
     @Test
 	public void shouldAddFindPerson() {
-		PhoneBookImpl phoneBook = new PhoneBookImpl();
 		Person p = new Person("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI");
 		phoneBook.addPerson(p);
 		Person pFound = phoneBook.findPerson("John", "Smith");
 		assertEquals(p, pFound);
 	}
+    
+    @Test
+	public void shouldFindInitialPeople() {
+		Person pFound = phoneBook.findPerson("Chris", "Johnson");
+		assertNotNull(pFound);
+		assertEquals(2, phoneBook.getPeople().size());
+	}
+    
+    @Test
+	public void ExpectToStringToGenerateListingOfPhonebook() {
+		assertEquals("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI\n"
+				+ "name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI",
+				phoneBook.toStringFromDb());
+		assertEquals("name=Chris Johnson, phoneNumber=(321) 231-7876, address=452 Freeman Drive, Algonac, MI\n"
+				+ "name=Dave Williams, phoneNumber=(231) 502-1236, address=285 Huron St, Port Austin, MI", phoneBook.toString());
+	}
+    
 //    Just for fun... test prepared statements to see how they work with sql injection attempt
 	@Test
 	public void shouldPreventSqlInjectionFind() {
-		PhoneBookImpl phoneBook = new PhoneBookImpl();
 		Person p = new Person("jimmy connors", "(248) 123-3210", "1234 blue bay Dr, detroit, MI");
-		phoneBook.addPersonToDb(p);
+		phoneBook.addPerson(p);
 		Person pFound = phoneBook.findPerson("' or", " '1'='1");
 		assertNull(pFound);
 	}
@@ -33,9 +52,8 @@ public class PhoneBookImplTest {
 //  Just for fun... test prepared statements to see how they work with sql injection attempt
 	@Test
 	public void shouldPreventSqlInjectionInsert() {
-		PhoneBookImpl phoneBook = new PhoneBookImpl();
 		Person p = new Person("johnny mac", "(BIG) MC-ENROE" , "'); DROP TABLE customer; --");
-		phoneBook.addPersonToDb(p);
+		phoneBook.addPerson(p);
 		Person pFound = phoneBook.findPerson("johnny", "mac");
 		assertEquals(p,pFound);
 	}

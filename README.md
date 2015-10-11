@@ -1,13 +1,13 @@
 *webapptest
 ==========
-** My Questions:
+** Questions:
 Ideally, I'd run these by the product owner (Rob Conklin) before starting.
 -What is the purpose of this product?  
 -How big might this phonebook get?
 -Is the product going to be used by multiple clients ?
 -How much load do you expect, i.e. how many clients at a time?
 
-**Assumptions user stories 
+**Assumptions 
 - Eventually, the phonebook will be stored in a database on one or more servers... and there will be infrastructure to keep the database consistent so that the phonebook application can act as if the database is a single consistent entity.
 - Eventually, multiple instances of this phonebook executable will run at the same time on one or more servers.
 - The variable "people" in the PhoneBook class should always have the same content as the database table named PhoneBook.

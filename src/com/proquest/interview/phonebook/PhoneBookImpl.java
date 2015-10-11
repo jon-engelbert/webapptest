@@ -9,15 +9,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.proquest.interview.util.DatabaseUtil;
+import com.proquest.interview.exceptions.AddPersonException;
 
 public class PhoneBookImpl implements PhoneBook {
-	public List<Person> people = new ArrayList<Person>();
+	private List<Person> people = new ArrayList<Person>();
 	
 
+
+	public List<Person> getPeople() {
+		return people;
+	}
+
+
+	public void setPeople(List<Person> people) {
+		this.people = people;
+	}
+	
 	/**
 	 * synchronize phonebook list from database records
 	 */
-	private void InitializeList() {
+	public void InitializeList() {
 		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
 			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK";
 			ResultSet rs = stmt.executeQuery(queryString);
@@ -37,8 +48,13 @@ public class PhoneBookImpl implements PhoneBook {
 
 	@Override
 	public void addPerson(Person newPerson) {
-		if (addPersonToDb(newPerson))
-			addPersonToCollection(newPerson);
+		try {
+			addPersonToDb(newPerson);
+		} catch (AddPersonException e) {
+			System.out.println("addPerson failed: " + newPerson.getName());
+			e.printStackTrace();
+		}
+		addPersonToCollection(newPerson);
 		
 	}
 	@Override
@@ -48,7 +64,7 @@ public class PhoneBookImpl implements PhoneBook {
 	}
 	
 	@Override
-	public boolean addPersonToDb(Person newPerson) {
+	public void addPersonToDb(Person newPerson) throws AddPersonException  {
 		try (Connection cn = DatabaseUtil.getConnection()) {
 			String queryString = "INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) VALUES(?, ?, ?)";
 			PreparedStatement stmt = cn.prepareStatement(queryString);
@@ -58,15 +74,12 @@ public class PhoneBookImpl implements PhoneBook {
 			stmt.executeUpdate();
 			cn.commit();
 		} catch (SQLException e) {
-			System.out.println("addPerson to database failed");
 			e.printStackTrace();
-			return false;
+			throw new AddPersonException("sql Exception");
 		} catch (ClassNotFoundException e1) {
-			System.out.println("addPerson to database failed");
 			e1.printStackTrace();
-			return false;
+			throw new AddPersonException("sql Exception");
 		}
-		return true;
 	}
 	
 	/**
@@ -154,11 +167,9 @@ public class PhoneBookImpl implements PhoneBook {
 		 * Cynthia Smith, (824) 128-8758, 875 Main St, Ann Arbor, MI
 		*/ 
 		Person p = new Person("John Smith", "(248) 123-4567", "1234 Sand Hill Dr, Royal Oak, MI");
-		phoneBook.addPersonToCollection(p);
-		phoneBook.addPersonToDb(p);
+		phoneBook.addPerson(p);
 		p = new Person("Cynthia Smith", "(824) 128-8758", "875 Main St, Ann Arbor, MI");
-		phoneBook.addPersonToCollection(p);
-		phoneBook.addPersonToDb(p);
+		phoneBook.addPerson(p);
 		// TODO: print the phone book out to System.out
 		System.out.println("\nPhone book (from database) after adding John & Cynthia Smith");
 		System.out.println(phoneBook.toStringFromDb());
@@ -168,10 +179,12 @@ public class PhoneBookImpl implements PhoneBook {
 		System.out.println("\nCynthia Smith query result:");
 		System.out.println(foundPerson.toString());
 		
-		// TODO: insert the new person objects into the database
-		p = new Person("John Harbaugh", "(800) MGO-BLUE", "1 N. Main St, Ann Arbor, MI");
-		phoneBook.addPersonToDb(p);
-		System.out.println("\nPhone book after adding John Harbaugh: ");
+		// TODO: insert the new person objects into the database (and the phonebook member / list!)
+		p = new Person("Jim Harbaugh", "(800) MGO-BLUE", "1 N. Main St, Ann Arbor, MI");
+		phoneBook.addPerson(p);
+		System.out.println("\nPhone book after adding Jim Harbaugh: ");
 		System.out.println(phoneBook.toString());
 	}
+
+
 }
