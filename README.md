@@ -27,7 +27,7 @@ Ideally, I'd run these by the product owner (Rob Conklin) before starting.
 * Eventually, the phonebook will be stored in a database on one or more servers... and there will be infrastructure to keep the database consistent so that the phonebook application can act as if the database is a single consistent entity.
 * Eventually, multiple instances of this phonebook executable will run at the same time on one or more servers.
 * The variable "people" in the PhoneBook class should always have the same content as the database table named PhoneBook.
-* For quick response to common queries, especially when the very latest data is not critical, a heap copy of the phonebook (e.g., a List) could be used.  .... this heap copy of the phonebook, or cache, will occassionally need to be updated from the database.  That could perhaps be done through messaging (e.g. RabbitMQ) or by reloading the phonebook from the database at regular intervals.  
+* For quick response to common queries, especially when the very latest data is not critical, a cached copy of the phonebook (i.e. people) can be used.  This cached copy of the phonebook will occassionally need to be updated from the database.  That could perhaps be done through messaging (e.g. RabbitMQ) or by reloading the phonebook from the database at regular intervals.  
 * However, we must be aware that different instances of this phonebook executable will have different heaps, and adding a member to one instance's heap copy of the phonebook won't update the local phonebook in the heap of other running instances.
 
 ###The original instructions:
@@ -38,7 +38,7 @@ Ideally, I'd run these by the product owner (Rob Conklin) before starting.
 
 ###Modified instructions:
 * synchronize the local phonebook with the database copy
-* "create new person objects and put them in the PhoneBook List and PhoneBook database table..."
+* "create new person objects and put them in the PhoneBook cached and PhoneBook database table..."
 * "print the phone book out to System.out"
 * "find Cynthia Smith and print out just her entry"
 * "insert another new person object into the database" 
@@ -65,7 +65,7 @@ Ideally, I'd run these by the product owner (Rob Conklin) before starting.
 , Then the person's contact information is displayed
 
 * As a user
-, I'd like to a listing of the address/phone of the entire phonebook
+, I'd like to get a listing of the address/phone of the entire phonebook
 , In order to print out a directory.
 
 * Given the phonebook 
