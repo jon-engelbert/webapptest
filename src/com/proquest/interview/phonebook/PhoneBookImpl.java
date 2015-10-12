@@ -15,7 +15,7 @@ public class PhoneBookImpl implements PhoneBook {
 	private Map<String, Person> people = new HashMap<String, Person>();
 	
 	@Override
-	public Map<String, Person> getPeople() {
+	public Map<String, Person> getPeopleFromCache() {
 		return people;
 	}
 
@@ -27,13 +27,13 @@ public class PhoneBookImpl implements PhoneBook {
 	/**
 	 * synchronize phonebook list from database records
 	 */
-	public void InitializeList() {
+	public Map<String, Person> getPeopleFromDb() {
 		try (Connection cn = DatabaseUtil.getConnection(); Statement stmt = cn.createStatement()) {
 			String queryString = "SELECT NAME, PHONENUMBER, ADDRESS FROM PHONEBOOK";
 			ResultSet rs = stmt.executeQuery(queryString);
 			while (rs.next()) {
 				Person newPerson = new Person(rs.getString("NAME"), rs.getString("PHONENUMBER"), rs.getString("ADDRESS"));
-			    addPersonToCollection(newPerson);
+			    addPersonToCache(newPerson);
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -42,6 +42,7 @@ public class PhoneBookImpl implements PhoneBook {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return people;
 	}
 	
 
@@ -53,11 +54,11 @@ public class PhoneBookImpl implements PhoneBook {
 			System.out.println("addPerson failed: " + newPerson.getName());
 			e.printStackTrace();
 		}
-		addPersonToCollection(newPerson);
+		addPersonToCache(newPerson);
 		
 	}
 	@Override
-	public void addPersonToCollection(Person newPerson) {
+	public void addPersonToCache(Person newPerson) {
 		if (!people.containsKey(newPerson.getName()))
 			people.put(newPerson.getName(), newPerson);
 	}
@@ -112,7 +113,7 @@ public class PhoneBookImpl implements PhoneBook {
 	}
 	
 	@Override
-	public Person findPerson(String firstName, String lastName) {
+	public Person findPersonFromCache(String firstName, String lastName) {
 		Person newPerson = null;
 		newPerson = people.get(firstName + " " + lastName);
 		return newPerson;
@@ -150,7 +151,7 @@ public class PhoneBookImpl implements PhoneBook {
 	
 
 	@Override
-	public String toString() {
+	public String toStringFromCache() {
 		String str = "";
 		for (Person p : people.values()) {
 		    if (!str.isEmpty())
@@ -166,7 +167,7 @@ public class PhoneBookImpl implements PhoneBook {
 
 		/* Initialize list of people from database 
 		*/
-		phoneBook.InitializeList();
+		phoneBook.getPeopleFromDb();
 		System.out.println("Initial phone book (from List)");
 		System.out.println(phoneBook.toString());
 		/* TODO: create person objects and put them in the PhoneBook and database
@@ -182,7 +183,7 @@ public class PhoneBookImpl implements PhoneBook {
 		System.out.println(phoneBook.toStringFromDb());
 
 		// TODO: find Cynthia Smith and print out just her entry
-		Person foundPerson = phoneBook.findPerson("Cynthia", "Smith");
+		Person foundPerson = phoneBook.findPersonFromCache("Cynthia", "Smith");
 		System.out.println("\nCynthia Smith query result:");
 		System.out.println(foundPerson.toString());
 		
@@ -190,8 +191,9 @@ public class PhoneBookImpl implements PhoneBook {
 		p = new Person("Jim Harbaugh", "(800) MGO-BLUE", "1 N. Main St, Ann Arbor, MI");
 		phoneBook.addPerson(p);
 		System.out.println("\nPhone book after adding Jim Harbaugh: ");
-		System.out.println(phoneBook.toString());
+		System.out.println(phoneBook.toStringFromCache());
 	}
+
 
 
 }
